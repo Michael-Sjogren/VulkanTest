@@ -19,6 +19,9 @@ int VulkanRenderer::Init(GLFWwindow* newWindow){
 void VulkanRenderer::CreateInstance(){
     // information of the application itself
     // most data here wont affect the program is for developer convinece
+    if(enableValidationLayers && !CheckValidationLayerSupport()){
+        throw std::runtime_error("Validation Layers requested, but not available!");
+    }
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.apiVersion = VK_API_VERSION_1_1;
@@ -31,7 +34,7 @@ void VulkanRenderer::CreateInstance(){
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &applicationInfo;
-    
+
     // create a list to hold the instance extenstions
     auto extentions = std::vector<const char*>();
     uint32_t glfwExtCount = 0;
@@ -48,9 +51,14 @@ void VulkanRenderer::CreateInstance(){
     }
     createInfo.enabledExtensionCount = static_cast<uint32_t> (extentions.size());
     createInfo.ppEnabledExtensionNames = extentions.data();
-    // TODO setup validation
-    createInfo.enabledLayerCount = 0;
-    createInfo.ppEnabledLayerNames = nullptr;
+    // if validation layers are activated
+    if (enableValidationLayers){
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+        std::cout << "Validation layers enabled!" << "\n";
+    }else {
+        createInfo.enabledLayerCount = 0;
+    }
 
     // Create instance
     VkResult result = vkCreateInstance(&createInfo,nullptr,&instance);
@@ -89,6 +97,26 @@ void VulkanRenderer::CreateLogicalDevice(){
     vkGetDeviceQueue(mainDevice.logicalDevice, indicies.graphicsFamily , 0 , &graphicsQueue);
 }
 
+bool VulkanRenderer::CheckValidationLayerSupport(){
+    uint32_t layerCount = 0;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount , availableLayers.data());
+    for (const char* layerName : validationLayers){
+        bool layerFound = false;
+        for(const auto &layerProperties : availableLayers){
+            if(strcmp(layerName ,layerProperties.layerName) == 0){
+                layerFound = true;
+                break;
+            }
+        }
+
+        if(!layerFound){
+            return false;
+        }
+    }
+    return true;
+}
 bool VulkanRenderer::CheckInstanceExtentionSupport(std::vector<const char*> * checkExtentions){
     uint32_t extCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr , &extCount , nullptr);

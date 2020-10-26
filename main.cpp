@@ -21,6 +21,7 @@ int main(void)
 {
     initWindow();
     VulkanRenderer vulkanRenderer = VulkanRenderer();
+    
     if(vulkanRenderer.Init(window)){
         return EXIT_FAILURE;
     }

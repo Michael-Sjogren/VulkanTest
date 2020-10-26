@@ -28,6 +28,16 @@ private:
     // getter functions
     void GetPhysicalDevice();
     QueueFamilyIndices GetQueueFamilies(VkPhysicalDevice device);
+    // validation
+    bool CheckValidationLayerSupport();
+    const std::vector<const char*> validationLayers = {
+        "VK_LAYER_KHRONOS_validation"
+    };
+    #ifdef NDEBUG
+        const bool enableValidationLayers = false;
+    #else
+        const bool enableValidationLayers = true;
+    #endif
 
 public:
     int Init(GLFWwindow* newWindow);

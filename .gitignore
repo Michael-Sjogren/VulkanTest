@@ -1,2 +1,4 @@
 bin
 .vscode
+.workspace
+.codelite
