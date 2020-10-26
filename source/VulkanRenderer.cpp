@@ -4,6 +4,7 @@ int VulkanRenderer::Init(GLFWwindow* newWindow){
     try
     {
         CreateInstance();
+        GetPhysicalDevice();
         CreateLogicalDevice();
     }
     catch(const std::exception& e)
@@ -78,7 +79,14 @@ void VulkanRenderer::CreateLogicalDevice(){
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceInfo.pEnabledFeatures = &deviceFeatures; // Physical device features logical device will use
     VkResult result = vkCreateDevice(mainDevice.physicalDevice, &deviceInfo, nullptr, &mainDevice.logicalDevice);
-
+    if (result != VK_SUCCESS){
+       throw std::runtime_error("Failed to create a Logical Device!");
+    }
+    
+    // queues are created at the same time as the dice...
+    // so we want a refernce to queues
+    // From given logical device, of given queue family of given index 0 since only one queue, place refernce in given
+    vkGetDeviceQueue(mainDevice.logicalDevice, indicies.graphicsFamily , 0 , &graphicsQueue);
 }
 
 bool VulkanRenderer::CheckInstanceExtentionSupport(std::vector<const char*> * checkExtentions){
@@ -101,8 +109,10 @@ bool VulkanRenderer::CheckInstanceExtentionSupport(std::vector<const char*> * ch
 }
 
 void VulkanRenderer::Cleanup(){
+    vkDestroyDevice(mainDevice.logicalDevice , nullptr);
     vkDestroyInstance(instance,nullptr);
 }
+
 bool VulkanRenderer::CheckDeviceSuitable(VkPhysicalDevice device){
     // information about the device itself (id, name , type , vendor , etc)
     /**
@@ -116,14 +126,18 @@ bool VulkanRenderer::CheckDeviceSuitable(VkPhysicalDevice device){
     QueueFamilyIndices indicies = GetQueueFamilies(device);
     return indicies.IsValid();
 }
+
+
 void VulkanRenderer::GetPhysicalDevice(){
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance,&deviceCount,nullptr);
     if (deviceCount == 0) {
         throw std::runtime_error("Cant find any GPU's that support vulkan instance.");
     }
+
     std::vector<VkPhysicalDevice> deviceList(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, deviceList.data());
+
     for(const auto &device : deviceList ){
         if(CheckDeviceSuitable(device)){
             mainDevice.physicalDevice = device;
@@ -135,7 +149,7 @@ void VulkanRenderer::GetPhysicalDevice(){
 QueueFamilyIndices VulkanRenderer::GetQueueFamilies(VkPhysicalDevice device){
     QueueFamilyIndices indices;
     uint32_t queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(device ,&queueFamilyCount , nullptr);
+    vkGetPhysicalDeviceQueueFamilyProperties(device ,&queueFamilyCount , VK_NULL_HANDLE);
     auto queueFamilyList = std::vector<VkQueueFamilyProperties>(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device , &queueFamilyCount , queueFamilyList.data());
     int index = 0;

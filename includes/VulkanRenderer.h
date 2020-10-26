@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <vector>
+#include <iostream>
 #include <cstring>
 #include "Utilites.h"
 #pragma once
@@ -16,6 +17,7 @@ private:
         VkPhysicalDevice physicalDevice;
         VkDevice logicalDevice;
     } mainDevice;
+    VkQueue graphicsQueue;
 
     void CreateInstance();
     void CreateLogicalDevice();

@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include "includes/VulkanRenderer.h"
 #include <iostream>
-#include <memory>
 
 GLFWwindow* window;
 VulkanRenderer* vulkanRenderer;
@@ -21,14 +20,14 @@ void initWindow(std::string title = "VulkanTest", const int width = 800 , const 
 int main(void)
 {
     initWindow();
-    std::unique_ptr<VulkanRenderer> vulkanRenderer(new VulkanRenderer());
-    if(vulkanRenderer->Init(window)){
+    VulkanRenderer vulkanRenderer = VulkanRenderer();
+    if(vulkanRenderer.Init(window)){
         return EXIT_FAILURE;
     }
     while(!glfwWindowShouldClose(window)){
         glfwPollEvents();
     }
-    vulkanRenderer->Cleanup();
+    vulkanRenderer.Cleanup();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

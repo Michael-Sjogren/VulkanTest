@@ -1,5 +1,5 @@
 cd bin
-mv VulkanTest .VulkanTest
 cmake ..
+mv VulkanTest .VulkanTest
 make
 ./VulkanTest
