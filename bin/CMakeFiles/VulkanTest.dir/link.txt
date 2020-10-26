@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/VulkanTest.dir/main.cpp.o CMakeFiles/VulkanTest.dir/source/VulkanRenderer.cpp.o  -o VulkanTest  /usr/local/lib/libglfw3.a /usr/lib/x86_64-linux-gnu/libvulkan.so /usr/lib/x86_64-linux-gnu/librt.so -lm -ldl /usr/lib/x86_64-linux-gnu/libX11.so -lpthread 
